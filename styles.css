@@ -166,6 +166,12 @@ nav {
     }
 }
 @media only screen and (max-width: 650px) {
+    .nav {
+        flex-direction: column;
+    }
+    .logo {
+        margin: 20px;
+    }
     .info {
         grid-column: 2 / span 6;
     }
