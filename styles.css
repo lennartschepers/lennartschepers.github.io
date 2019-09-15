@@ -129,8 +129,10 @@ nav {
 .featureTop, .featureCta {
     font-size: 0.8125rem;
     font-weight:700;
-    text-transform: uppercase;
     margin-bottom:10px;
+}
+.featureTop {
+    text-transform: uppercase;
 }
 .featureCta {
     cursor:pointer;
