@@ -11,6 +11,7 @@
   let user = null;
   let loading = true;
   let newPlayer = '';
+  const BASE_URL = import.meta.env.BASE_URL
 
 
   // Google login
@@ -79,7 +80,7 @@
       
       {#if $currentCategory == 0}
         <p class="font-bold flex text-2xl sm:text-5xl justify-center items-center">de
-        <span><img class="w-12 h-12 sm:w-24 sm:h-24" src="/src/assets/logo.svg" alt="logo" /></span>
+        <span><img class="w-12 h-12 sm:w-24 sm:h-24" src="{BASE_URL}/src/assets/logo.svg" alt="logo" /></span>
         domste mens</p>
         <div class="mb-4">
           <p class="text-xl mt-12 ">Voor wie is dit scherm?</p>
