@@ -1,12 +1,12 @@
-<!DOCTYPE html>
+i<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Quikk data visualization tool (DAVIS)</title>
+  <title>DAVIS by Quikk</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body { font-family: sans-serif; margin: 2rem; }
-    canvas { max-width: 100%; height: 400px; }
+    canvas { width: 100% !important; height: 100% !important; }
     .controls { margin-top: 1rem; }
     .controls input, .controls select, .controls button {
       margin: 0.5rem 0;
@@ -22,22 +22,24 @@
   </style>
 </head>
 <body>
-  <h1>Chart.js Graph Builder</h1>
+  <h1>Data Visualization Tool</h1>
 
   <input type="file" id="csvInput" accept=".csv, .txt" />
   <div class="controls">
-    <label>Chart titel: <input type="text" id="chartTitle" value="My Chart" /></label>
-    <label>Chart subtitel: <input type="text" id="chartSubtitle" value="Source: My Data" /></label>
-    <label>Ruimte tussen balken (0-1): <input type="number" id="barSpacing" step="0.1" min="0" max="1" value="0.8" /></label>
-    <label>Grootte lettertype as-labels: <input type="number" id="axisFontSize" value="12" /></label>
-    <label>Embed brredte (px): <input type="number" id="embedWidth" value="800" /></label>
-    <label>Embed hoogte (px): <input type="number" id="embedHeight" value="800" /></label>
+    <label>Chart Titel: <input type="text" id="chartTitle" value="Quikk chart" /></label>
+    <label>Chart Subtitel: <input type="text" id="chartSubtitle" value="Source: My Data" /></label>
+    <label>Bar Breedte (0-1): <input type="number" id="barSpacing" step="0.1" min="0" max="1" value="0.8" /></label>
+    <label>Label Grootte: <input type="number" id="axisFontSize" value="12" /></label>
+    <label>Embed Breedte (px): <input type="number" id="embedWidth" value="800" /></label>
+    <label>Embed Hoogte (px): <input type="number" id="embedHeight" value="400" /></label>
     <div id="colorPickers" class="color-picker-container"></div>
-    <button onclick="renderChart()">Chart renderen</button>
-    <button onclick="copyEmbedCode()">kopieer embed code naar clipboard</button>
+    <button onclick="renderChart()">Render Chart</button>
+    <button onclick="copyEmbedCode()">Kopieer Embed Code naar Clipboard</button>
   </div>
 
-  <canvas id="chartCanvas"></canvas>
+  <div style="width: 100%; height: 500px;">
+    <canvas id="chartCanvas"></canvas>
+  </div>
 
   <script>
     let chart;
@@ -104,6 +106,7 @@
         data: { labels, datasets },
         options: {
           responsive: true,
+          maintainAspectRatio: false,
           plugins: {
             title: { display: true, text: title, font: { size: 18 } },
             subtitle: { display: true, text: subtitle, font: { size: 14 } }
@@ -133,7 +136,7 @@
       const iframeUrl = `${window.location.origin}/embed.html?chart=${encoded}`;
 
       const width = document.getElementById('embedWidth').value || 800;
-      const height = document.getElementById('embedHeight').value || 800;
+      const height = document.getElementById('embedHeight').value || 400;
       const iframeCode = `<iframe src="${iframeUrl}" width="${width}" height="${height}" frameborder="0" allowfullscreen></iframe>`;
 
       navigator.clipboard.writeText(iframeCode).then(() => {
