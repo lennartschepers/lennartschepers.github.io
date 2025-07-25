@@ -8,12 +8,17 @@
     body { font-family: sans-serif; margin: 2rem; }
     canvas { max-width: 100%; height: 400px; }
     .controls { margin-top: 1rem; }
-    .controls input, .controls select, .controls button, .controls textarea {
+    .controls input, .controls select, .controls button {
       margin: 0.5rem 0;
       display: block;
       width: 100%;
     }
     iframe { width: 100%; height: 400px; border: 1px solid #ccc; margin-top: 2rem; }
+    .color-picker-container label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
   </style>
 </head>
 <body>
@@ -25,13 +30,14 @@
     <label>Chart Subtitle: <input type="text" id="chartSubtitle" value="Source: My Data" /></label>
     <label>Bar Spacing (categoryPercentage): <input type="number" id="barSpacing" step="0.1" min="0" max="1" value="0.8" /></label>
     <label>Axis Font Size: <input type="number" id="axisFontSize" value="12" /></label>
-    <label>Colors (semicolon-separated for each category): <input type="text" id="colors" value="red;blue;green;orange" /></label>
+    <label>Embed Width (px): <input type="number" id="embedWidth" value="800" /></label>
+    <label>Embed Height (px): <input type="number" id="embedHeight" value="400" /></label>
+    <div id="colorPickers" class="color-picker-container"></div>
     <button onclick="renderChart()">Render Chart</button>
-    <button onclick="generateEmbed()">Export to Embed Code</button>
+    <button onclick="copyEmbedCode()">Copy Embed Code to Clipboard</button>
   </div>
 
   <canvas id="chartCanvas"></canvas>
-  <textarea id="embedCode" readonly placeholder="Your iframe embed code will appear here..."></textarea>
 
   <script>
     let chart;
@@ -44,21 +50,48 @@
       reader.onload = function (evt) {
         const lines = evt.target.result.trim().split('\n');
         parsedData = lines.map(line => line.split(';'));
+        generateColorPickers();
       };
       reader.readAsText(file);
     });
+
+    function generateColorPickers() {
+      const container = document.getElementById('colorPickers');
+      container.innerHTML = '';
+      if (!parsedData || parsedData.length < 2) return;
+      parsedData.slice(1).forEach((row, i) => {
+        const colorInput = document.createElement('input');
+        colorInput.type = 'color';
+        colorInput.id = `color-${i}`;
+        colorInput.value = getDefaultColor(i);
+
+        const label = document.createElement('label');
+        label.textContent = `${row[0]}:`;
+        label.appendChild(colorInput);
+
+        container.appendChild(label);
+      });
+    }
+
+    function getDefaultColor(index) {
+      const defaultColors = ['#ff0000', '#00ff00', '#0000ff', '#ff00ff', '#ffaa00', '#00ffff', '#800000'];
+      return defaultColors[index % defaultColors.length];
+    }
 
     function renderChart() {
       if (!parsedData || parsedData.length < 2) return alert('Please upload a valid file first.');
 
       const labels = parsedData[0].slice(1);
       const datasets = parsedData.slice(1).map((row, i) => {
-        const colors = document.getElementById('colors').value.split(';');
+        const barSpacing = parseFloat(document.getElementById('barSpacing').value);
+        const values = row.slice(1).map(Number);
+        const color = document.getElementById(`color-${i}`)?.value || getDefaultColor(i);
+
         return {
           label: row[0],
-          data: row.slice(1).map(Number),
-          backgroundColor: colors[i % colors.length] || 'gray',
-          categoryPercentage: parseFloat(document.getElementById('barSpacing').value)
+          data: values,
+          categoryPercentage: barSpacing,
+          backgroundColor: color
         };
       });
 
@@ -94,12 +127,20 @@
       window.lastConfig = config;
     }
 
-    function generateEmbed() {
+    function copyEmbedCode() {
       if (!window.lastConfig) return alert('Render a chart first!');
       const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(window.lastConfig))));
       const iframeUrl = `${window.location.origin}/embed.html?chart=${encoded}`;
-      const iframeCode = `<iframe src="${iframeUrl}" width="800" height="400" frameborder="0" allowfullscreen></iframe>`;
-      document.getElementById('embedCode').value = iframeCode;
+
+      const width = document.getElementById('embedWidth').value || 800;
+      const height = document.getElementById('embedHeight').value || 800;
+      const iframeCode = `<iframe src="${iframeUrl}" width="${width}" height="${height}" frameborder="0" allowfullscreen></iframe>`;
+
+      navigator.clipboard.writeText(iframeCode).then(() => {
+        alert('Embed code copied to clipboard!');
+      }, err => {
+        alert('Failed to copy embed code');
+      });
     }
   </script>
 </body>
