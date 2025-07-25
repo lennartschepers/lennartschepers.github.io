@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Chart.js Graph Builder</title>
+  <title>Quikk data visualization tool (DAVIS)</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body { font-family: sans-serif; margin: 2rem; }
@@ -26,15 +26,15 @@
 
   <input type="file" id="csvInput" accept=".csv, .txt" />
   <div class="controls">
-    <label>Chart Title: <input type="text" id="chartTitle" value="My Chart" /></label>
-    <label>Chart Subtitle: <input type="text" id="chartSubtitle" value="Source: My Data" /></label>
-    <label>Bar Spacing (categoryPercentage): <input type="number" id="barSpacing" step="0.1" min="0" max="1" value="0.8" /></label>
-    <label>Axis Font Size: <input type="number" id="axisFontSize" value="12" /></label>
-    <label>Embed Width (px): <input type="number" id="embedWidth" value="800" /></label>
-    <label>Embed Height (px): <input type="number" id="embedHeight" value="400" /></label>
+    <label>Chart titel: <input type="text" id="chartTitle" value="My Chart" /></label>
+    <label>Chart subtitel: <input type="text" id="chartSubtitle" value="Source: My Data" /></label>
+    <label>Ruimte tussen balken (0-1): <input type="number" id="barSpacing" step="0.1" min="0" max="1" value="0.8" /></label>
+    <label>Grootte lettertype as-labels: <input type="number" id="axisFontSize" value="12" /></label>
+    <label>Embed brredte (px): <input type="number" id="embedWidth" value="800" /></label>
+    <label>Embed hoogte (px): <input type="number" id="embedHeight" value="800" /></label>
     <div id="colorPickers" class="color-picker-container"></div>
-    <button onclick="renderChart()">Render Chart</button>
-    <button onclick="copyEmbedCode()">Copy Embed Code to Clipboard</button>
+    <button onclick="renderChart()">Chart renderen</button>
+    <button onclick="copyEmbedCode()">kopieer embed code naar clipboard</button>
   </div>
 
   <canvas id="chartCanvas"></canvas>
