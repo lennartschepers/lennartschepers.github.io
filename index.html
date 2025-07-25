@@ -81,7 +81,7 @@
     }
 
     function renderChart() {
-      if (!parsedData || parsedData.length < 2) return alert('Please upload a valid file first.');
+      if (!parsedData || parsedData.length < 2) return alert('Upload eerst een valide bestand, graag.');
 
       const labels = parsedData[0].slice(1);
       const datasets = parsedData.slice(1).map((row, i) => {
@@ -131,7 +131,7 @@
     }
 
     function copyEmbedCode() {
-      if (!window.lastConfig) return alert('Render a chart first!');
+      if (!window.lastConfig) return alert('Render eerst een chart!');
       const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(window.lastConfig))));
       const iframeUrl = `${window.location.origin}/embed.html?chart=${encoded}`;
 
