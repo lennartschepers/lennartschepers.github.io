@@ -34,7 +34,7 @@
     <label>Iframe Hoogte (px): <input type="number" id="embedHeight" value="400" /></label>
     <div id="colorPickers" class="color-picker-container"></div>
     <button onclick="renderChart()">Render Chart</button>
-    <button onclick="copyEmbedCode()">Kopieer Iframe Code naar Clipboard</button>
+    <button onclick="copyEmbedCode()">Kopieer iframe code naar clipboard</button>
   </div>
 
   <div style="width: 100%; height: 500px;">
@@ -140,9 +140,9 @@
       const iframeCode = `<iframe src="${iframeUrl}" width="${width}" height="${height}" frameborder="0" allowfullscreen></iframe>`;
 
       navigator.clipboard.writeText(iframeCode).then(() => {
-        alert('Iframe code gekopieerd to clipboard!');
+        alert('iframe code gekopieerd naar clipboard!');
       }, err => {
-        alert('Failed to copy embed code');
+        alert('Kon iframe code niet kopieren');
       });
     }
   </script>
