@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>DAVIS by Quikk</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
   <style>
     body { font-family: sans-serif; margin: 2rem; }
     canvas { width: 100% !important; height: 100% !important; }
@@ -76,7 +77,7 @@
     }
 
     function getDefaultColor(index) {
-      const defaultColors = ['#ff0000', '#00ff00', '#0000ff', '#ff00ff', '#ffaa00', '#00ffff', '#800000'];
+      const defaultColors = ['#00592F', '#15607A', '#0ABB9F', '#00DCA5', '#ffaa00', '#00ffff', '#800000'];
       return defaultColors[index % defaultColors.length];
     }
 
@@ -105,21 +106,36 @@
         type: 'bar',
         data: { labels, datasets },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            title: { display: true, text: title, font: { size: 18 } },
-            subtitle: { display: true, text: subtitle, font: { size: 14 } }
-          },
-          scales: {
-            x: {
-              ticks: { font: { size: axisFontSize } }
-            },
-            y: {
-              ticks: { font: { size: axisFontSize } }
-            }
-          }
-        }
+			responsive: true,
+			maintainAspectRatio: false,
+			plugins: {
+				title: { display: true, text: title, font: { size: 18 } },
+				subtitle: { display: true, text: subtitle, font: { size: 14 } }
+			},
+			scales: {
+				x: {
+					grid: { display: false },
+				},
+			}
+			scales: {
+				x: {
+					ticks: { font: { size: axisFontSize } }, grid: { display: false }
+				},
+				y: {
+					ticks: { font: { size: axisFontSize } }
+				}
+			}
+			onHover: (evt, elements) => {
+				if (elements.length) {
+					const ix = elements[0].datasetIndex;
+					const country = chart.data.datasets[ix].label;
+					if (selectedCountry !== country) {
+						selectedCountry = country;
+						applyHighlight();
+					}
+				}
+			}
+		}
       };
 
       if (chart) chart.destroy();
