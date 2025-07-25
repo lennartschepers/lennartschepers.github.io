@@ -45,6 +45,8 @@
   <script>
     let chart;
     let parsedData = null;
+    let selectedCategory = null;
+    const colors = {};
 
     document.getElementById('csvInput').addEventListener('change', function (e) {
       const file = e.target.files[0];
@@ -66,7 +68,9 @@
         const colorInput = document.createElement('input');
         colorInput.type = 'color';
         colorInput.id = `color-${i}`;
-        colorInput.value = getDefaultColor(i);
+        const defaultColor = getDefaultColor(i);
+        colorInput.value = defaultColor;
+        colors[row[0]] = defaultColor;
 
         const label = document.createElement('label');
         label.textContent = `${row[0]}:`;
@@ -85,10 +89,15 @@
       if (!parsedData || parsedData.length < 2) return alert('Upload eerst een valide bestand, graag.');
 
       const labels = parsedData[0].slice(1);
+      const barSpacing = parseFloat(document.getElementById('barSpacing').value);
+      const axisFontSize = parseInt(document.getElementById('axisFontSize').value);
+      const title = document.getElementById('chartTitle').value;
+      const subtitle = document.getElementById('chartSubtitle').value;
+
       const datasets = parsedData.slice(1).map((row, i) => {
-        const barSpacing = parseFloat(document.getElementById('barSpacing').value);
         const values = row.slice(1).map(Number);
         const color = document.getElementById(`color-${i}`)?.value || getDefaultColor(i);
+        colors[row[0]] = color;
 
         return {
           label: row[0],
@@ -98,52 +107,62 @@
         };
       });
 
-      const axisFontSize = parseInt(document.getElementById('axisFontSize').value);
-      const title = document.getElementById('chartTitle').value;
-      const subtitle = document.getElementById('chartSubtitle').value;
-
       const config = {
         type: 'bar',
         data: { labels, datasets },
         options: {
-			responsive: true,
-			maintainAspectRatio: false,
-			plugins: {
-				title: { display: true, text: title, font: { size: 18 } },
-				subtitle: { display: true, text: subtitle, font: { size: 14 } }
-			},
-			scales: {
-				x: {
-					grid: { display: false },
-				},
-			},
-			scales: {
-				x: {
-					ticks: { font: { size: axisFontSize } }, grid: { display: false }
-				},
-				y: {
-					ticks: { font: { size: axisFontSize } }
-				}
-			}
-			onHover: (evt, elements) => {
-				if (elements.length) {
-					const ix = elements[0].datasetIndex;
-					const country = chart.data.datasets[ix].label;
-					if (selectedCountry !== country) {
-						selectedCountry = country;
-						applyHighlight();
-					}
-				}
-			}
-		}
-		}
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: { display: true, text: title, font: { size: 18 } },
+            subtitle: { display: true, text: subtitle, font: { size: 14 } },
+            datalabels: {
+              display: (ctx) => {
+                return selectedCategory !== null && ctx.dataset.label === selectedCategory;
+              },
+              anchor: 'end',   // attach to top of bar
+              align: 'start',  // move above it
+              offset: 10,      // add space above bar
+              formatter: Math.round,
+              color: '#000'
+            }
+          },
+          scales: {
+            x: {
+              ticks: { font: { size: axisFontSize } },
+              grid: { display: false }
+            },
+            y: {
+              ticks: { font: { size: axisFontSize } }
+            }
+          },
+          onHover: (evt, elements) => {
+            if (elements.length) {
+              const ix = elements[0].datasetIndex;
+              const category = chart.data.datasets[ix].label;
+              if (selectedCategory !== category) {
+                selectedCategory = category;
+                applyHighlight();
+              }
+            } else {
+              selectedCategory = null;
+              applyHighlight();
+            }
+          }
+        }
       };
 
       if (chart) chart.destroy();
       const ctx = document.getElementById('chartCanvas').getContext('2d');
+      Chart.register(ChartDataLabels);
       chart = new Chart(ctx, config);
 
-      // Store config for embed
+      // Reset on mouse leave
+      document.getElementById('chartCanvas').addEventListener('mouseleave', () => {
+        selectedCategory = null;
+        applyHighlight();
+      });
+
       window.lastConfig = config;
     }
 
@@ -161,6 +180,17 @@
       }, err => {
         alert('Kon iframe code niet kopieren');
       });
+    }
+
+    function applyHighlight() {
+      chart.data.datasets.forEach(ds => {
+        if (selectedCategory && ds.label !== selectedCategory) {
+          ds.backgroundColor = 'rgba(200,200,200,0.3)';
+        } else {
+          ds.backgroundColor = colors[ds.label];
+        }
+      });
+      chart.update();
     }
   </script>
 </body>
