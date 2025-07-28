@@ -44,15 +44,11 @@
       let selectedCategory = null;
       const originalColors = config.data.datasets.map(ds => ds.backgroundColor);
 
-      // Ensure ChartDataLabels is registered
       Chart.register(ChartDataLabels);
 
-      // Restore full datalabels config
       config.options.plugins = config.options.plugins || {};
       config.options.plugins.datalabels = {
-        display: (ctx) => {
-          return selectedCategory !== null && ctx.dataset.label === selectedCategory;
-        },
+        display: (ctx) => selectedCategory !== null && ctx.dataset.label === selectedCategory,
         anchor: 'end',
         align: 'end',
         offset: 10,
@@ -61,40 +57,46 @@
         font: { weight: 'bold' }
       };
 
-      // Disable legend click
-      config.options.plugins.legend = config.options.plugins.legend || {};
-      config.options.plugins.legend.onClick = () => {};
+      config.options.plugins.legend = {
+        onClick: () => {},
+        onHover: (event, legendItem, legend) => {
+          selectedCategory = legendItem.text;
+          applyHighlight();
+        }
+      };
 
-      // Apply y-axis styling to hide top grid line and left axis line
       if (config.options.scales?.y) {
         config.options.scales.y.grid = {
           drawTicks: false,
           drawOnChartArea: true,
           color: function(context) {
             if (context.tick && context.tick.value === context.scale.max) {
-              return 'transparent'; // hide top line
+              return 'transparent'; // hide top grid line
             }
             return '#ccc';
           }
         };
         config.options.scales.y.border = { display: false };
+        config.options.scales.y.ticks = {
+          ...config.options.scales.y.ticks,
+          callback: function(value, index, ticks) {
+            if (index === ticks.length - 1) return '';
+            return value;
+          }
+        };
       }
 
       const chart = new Chart(ctx, config);
 
-      // Highlight logic
       function applyHighlight() {
         chart.data.datasets.forEach((ds, i) => {
-          if (selectedCategory && ds.label !== selectedCategory) {
-            ds.backgroundColor = 'rgba(200,200,200,0.3)';
-          } else {
-            ds.backgroundColor = originalColors[i];
-          }
+          ds.backgroundColor = selectedCategory && ds.label !== selectedCategory
+            ? 'rgba(200,200,200,0.3)'
+            : originalColors[i];
         });
         chart.update();
       }
 
-      // Bar hover
       chart.options.onHover = (evt, elements) => {
         if (elements.length) {
           const ix = elements[0].datasetIndex;
@@ -109,40 +111,9 @@
         }
       };
 
-      // Canvas mouseleave reset
       document.getElementById("chartCanvas").addEventListener("mouseleave", () => {
         selectedCategory = null;
         applyHighlight();
-      });
-
-      // Legend hover plugin
-      Chart.register({
-        id: 'customLegendHover',
-        afterEvent(chart, args) {
-          const event = args.event;
-          const legend = chart.legend;
-          if (!legend || !legend.legendItems) return;
-
-          const hovered = legend.legendItems.find(item => {
-            const rect = legend.legendHitBoxes[item.index];
-            if (!rect) return false;
-            const { x, y, width, height } = rect;
-            return event.x >= x && event.x <= x + width && event.y >= y && event.y <= y + height;
-          });
-
-          if (hovered) {
-            const hoveredLabel = hovered.text;
-            if (selectedCategory !== hoveredLabel) {
-              selectedCategory = hoveredLabel;
-              applyHighlight();
-            }
-          } else {
-            if (!chart._active.length && selectedCategory !== null) {
-              selectedCategory = null;
-              applyHighlight();
-            }
-          }
-        }
       });
 
       chart.update();
