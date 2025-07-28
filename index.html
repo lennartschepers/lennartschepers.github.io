@@ -158,7 +158,7 @@
 						maxTicksLimit: 4,
 						precision: 0,
 						callback: function(value, index, ticks) {
-							if (index === ticks.length - 1) return '';
+							if (index === ticks.length - 1 || index === 0) return '';
 							return value;
 						}
 					},
