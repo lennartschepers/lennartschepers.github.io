@@ -32,8 +32,8 @@
 			<label>Chart Titel: <input type="text" id="chartTitle" value="Quikk chart" /></label>
 			<label>Chart Subtitel: <input type="text" id="chartSubtitle" value="" /></label>
 			<label>Label Grootte: <input type="number" id="axisFontSize" value="12" /></label>
-			<label>Iframe Breedte (px): <input type="number" id="embedWidth" value="500" /></label>
-			<label>Iframe Hoogte (px): <input type="number" id="embedHeight" value="500" /></label>
+			<label>Iframe Breedte (px): <input type="number" id="embedWidth" value="400" /></label>
+			<label>Iframe Hoogte (px): <input type="number" id="embedHeight" value="400" /></label>
 			<div id="colorPickers" class="color-picker-container"></div>
 			<button onclick="renderChart()">Render Chart</button>
 			<button onclick="copyEmbedCode()">Kopieer iframe code naar clipboard</button>
@@ -214,8 +214,8 @@
       const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(window.lastConfig))));
       const iframeUrl = `${window.location.origin}/embed.html?chart=${encoded}`;
 
-      const width = document.getElementById('embedWidth').value || 500;
-      const height = document.getElementById('embedHeight').value || 500;
+      const width = document.getElementById('embedWidth').value || 400;
+      const height = document.getElementById('embedHeight').value || 400;
       const iframeCode = `<iframe src="${iframeUrl}" width="${width}" height="${height}" frameborder="0" allowfullscreen></iframe>`;
 
       navigator.clipboard.writeText(iframeCode).then(() => {
