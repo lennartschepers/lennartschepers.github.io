@@ -1,90 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<title>Embedded Chart</title>
-		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-		<style>
-html, body {
-	margin: 0;
-	padding: 0;
-	height: 100%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-	canvas {
-		max-width: 100%;
-		max-height: 100%;
-	}
-		</style>
-	</head>
-	<body>
-		<canvas id="chartCanvas"></canvas>
+<head>
+  <meta charset="UTF-8" />
+  <title>Embedded Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    canvas {
+      max-width: 100%; max-height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="chartCanvas"></canvas>
+  <script>
+    function getChartConfigFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      const encodedConfig = params.get("chart");
+      if (!encodedConfig) return null;
+      try {
+        const decoded = decodeURIComponent(escape(atob(encodedConfig)));
+        return JSON.parse(decoded);
+      } catch (e) {
+        console.error("Failed to parse chart config", e);
+        return null;
+      }
+    }
 
-		<script>
-			function getChartConfigFromURL() {
-				const params = new URLSearchParams(window.location.search);
-				const encodedConfig = params.get("chart");
-				if (!encodedConfig) return null;
-				try {
-					const decoded = decodeURIComponent(escape(atob(encodedConfig)));
-					return JSON.parse(decoded);
-				} catch (e) {
-					console.error("Failed to parse chart config", e);
-					return null;
-				}
-			}
+    const config = getChartConfigFromURL();
 
-			const config = getChartConfigFromURL();
+    if (config) {
+      const ctx = document.getElementById("chartCanvas").getContext("2d");
 
-			if (config) {
-				const ctx = document.getElementById("chartCanvas").getContext("2d");
+      let selectedCategory = null;
+      const originalColors = config.data.datasets.map(ds => ds.backgroundColor);
 
-				let selectedCategory = null;
-				// Save original colors from datasets for restoring later
-				const originalColors = config.data.datasets.map(ds => ds.backgroundColor);
+      // Patch legend options to disable clicks and add hover handlers
+      config.options.plugins = config.options.plugins || {};
+      config.options.plugins.legend = config.options.plugins.legend || {};
+      config.options.plugins.legend.onClick = () => {}; // disable legend clicks
 
-				// Wrap the onHover handler (or add if missing)
-				config.options = config.options || {};
-				config.options.onHover = (evt, elements) => {
-					if (elements.length) {
-						const ix = elements[0].datasetIndex;
-						const category = config.data.datasets[ix].label;
-						if (selectedCategory !== category) {
-							selectedCategory = category;
-							applyHighlight();
-						}
-					} else {
-						selectedCategory = null;
-						applyHighlight();
-					}
-				};
+      // We will override the default legend events with custom handlers for hover
+      const chart = new Chart(ctx, config);
 
-				// add mouseleave handler to canvas to reset highlight
-				const chart = new Chart(ctx, config);
+      // Custom function to apply highlight (dimming other datasets)
+      function applyHighlight() {
+        chart.data.datasets.forEach((ds, i) => {
+          if (selectedCategory && ds.label !== selectedCategory) {
+            ds.backgroundColor = "rgba(200,200,200,0.3)";
+          } else {
+            ds.backgroundColor = originalColors[i];
+          }
+        });
+        chart.update();
+      }
 
-				document.getElementById("chartCanvas").addEventListener("mouseleave", () => {
-					selectedCategory = null;
-					applyHighlight();
-				});
+      // Handle bar hover to set highlight
+      chart.options.onHover = (evt, elements) => {
+        if (elements.length) {
+          const ix = elements[0].datasetIndex;
+          const category = chart.data.datasets[ix].label;
+          if (selectedCategory !== category) {
+            selectedCategory = category;
+            applyHighlight();
+          }
+        } else {
+          selectedCategory = null;
+          applyHighlight();
+        }
+      };
 
-				function applyHighlight() {
-					chart.data.datasets.forEach((ds, i) => {
-						if (selectedCategory && ds.label !== selectedCategory) {
-							ds.backgroundColor = "rgba(200,200,200,0.3)";
-						} else {
-							ds.backgroundColor = originalColors[i];
-						}
-					});
-					chart.update();
-				}
-			} else {
-				document.body.innerHTML = "<p style='font-family:sans-serif;'>Invalid or missing chart data.</p>";
-			}
-		</script>
+      // Add mouseleave listener on canvas to reset highlight
+      document.getElementById("chartCanvas").addEventListener("mouseleave", () => {
+        selectedCategory = null;
+        applyHighlight();
+      });
 
+      // Add legend hover effect manually
+      // Chart.js doesn't support legend hover natively, so we add event listeners to legend items
 
-	</body>
+      // Wait for chart to be fully rendered
+      setTimeout(() => {
+        const legendItems = document.querySelectorAll('canvas + ul > li'); 
+        // Above selector might not always work; instead, let's add a legend plugin for hover:
+
+        // But easier: use Chart.js legend plugin's afterEvent to track hover:
+
+        // We'll unregister old plugin and add a new one that listens to legend hover
+        Chart.unregister(chart._plugins.plugins.find(p => p.id === 'legend'));
+        Chart.register({
+          id: 'customLegendHover',
+          afterEvent(chart, args) {
+            const event = args.event;
+            const legend = chart.legend;
+            if (!legend || !legend.legendItems) return;
+
+            // Check if mouse is over a legend item
+            const hovered = legend.legendItems.find(item => {
+              const rect = legend.legendHitBoxes[item.index];
+              if (!rect) return false;
+              const {x, y, width, height} = rect;
+              return event.x >= x && event.x <= x + width && event.y >= y && event.y <= y + height;
+            });
+
+            if (hovered) {
+              const hoveredLabel = hovered.text;
+              if (selectedCategory !== hoveredLabel) {
+                selectedCategory = hoveredLabel;
+                applyHighlight();
+              }
+            } else {
+              if (!chart._active.length) {
+                if (selectedCategory !== null) {
+                  selectedCategory = null;
+                  applyHighlight();
+                }
+              }
+            }
+          }
+        });
+
+        chart.update();
+      }, 100);
+
+      // Fix the top horizontal grid line hiding if y scale exists
+      if (chart.options.scales && chart.options.scales.y) {
+        const yGrid = chart.options.scales.y.grid || {};
+        yGrid.color = function(context) {
+          if (context.tick && context.tick.value === context.scale.max) {
+            return 'transparent'; // hide top horizontal line
+          }
+          return '#ccc';
+        };
+        yGrid.drawTicks = false;
+        chart.options.scales.y.grid = yGrid;
+        // Also hide left vertical axis border line
+        if (chart.options.scales.y.border) {
+          chart.options.scales.y.border.display = false;
+        } else {
+          chart.options.scales.y.border = { display: false };
+        }
+      }
+
+      chart.update();
+
+    } else {
+      document.body.innerHTML = "<p style='font-family:sans-serif;'>Invalid or missing chart data.</p>";
+    }
+  </script>
+</body>
 </html>
 
