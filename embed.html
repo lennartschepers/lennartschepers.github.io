@@ -5,6 +5,8 @@
   <title>Embedded Chart</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <script src="js/chart-shared.js" defer></script>
+  <script src="js/chart-embed.js" defer></script>
   <style>
     html, body {
       margin: 0;
@@ -22,105 +24,6 @@
 </head>
 <body>
   <canvas id="chartCanvas"></canvas>
-  <script>
-    function getChartConfigFromURL() {
-      const params = new URLSearchParams(window.location.search);
-      const encodedConfig = params.get("chart");
-      if (!encodedConfig) return null;
-      try {
-        const decoded = decodeURIComponent(escape(atob(encodedConfig)));
-        return JSON.parse(decoded);
-      } catch (e) {
-        console.error("Failed to parse chart config", e);
-        return null;
-      }
-    }
-
-    const config = getChartConfigFromURL();
-
-    if (config) {
-      const ctx = document.getElementById("chartCanvas").getContext("2d");
-
-      let selectedCategory = null;
-      const originalColors = config.data.datasets.map(ds => ds.backgroundColor);
-
-      Chart.register(ChartDataLabels);
-
-      config.options.plugins = config.options.plugins || {};
-      config.options.plugins.datalabels = {
-        display: (ctx) => selectedCategory !== null && ctx.dataset.label === selectedCategory,
-        anchor: 'end',
-        align: 'end',
-        offset: 10,
-        color: '#000',
-        formatter: v => v,
-        font: { weight: 'bold' }
-      };
-
-      config.options.plugins.legend = {
-        onClick: () => {},
-        onHover: (event, legendItem, legend) => {
-          selectedCategory = legendItem.text;
-          applyHighlight();
-        }
-      };
-
-      if (config.options.scales?.y) {
-        config.options.scales.y.grid = {
-          drawTicks: false,
-          drawOnChartArea: true,
-          color: function(context) {
-            if (context.tick && context.tick.value === context.scale.max) {
-              return 'transparent'; // hide top grid line
-            }
-            return '#ccc';
-          }
-        };
-        config.options.scales.y.border = { display: false };
-        config.options.scales.y.ticks = {
-          ...config.options.scales.y.ticks,
-          callback: function(value, index, ticks) {
-            if (index === ticks.length - 1 || index === 0) return '';
-            return value;
-          }
-        };
-      }
-
-      const chart = new Chart(ctx, config);
-
-      function applyHighlight() {
-        chart.data.datasets.forEach((ds, i) => {
-          ds.backgroundColor = selectedCategory && ds.label !== selectedCategory
-            ? 'rgba(200,200,200,0.3)'
-            : originalColors[i];
-        });
-        chart.update();
-      }
-
-      chart.options.onHover = (evt, elements) => {
-        if (elements.length) {
-          const ix = elements[0].datasetIndex;
-          const category = chart.data.datasets[ix].label;
-          if (selectedCategory !== category) {
-            selectedCategory = category;
-            applyHighlight();
-          }
-        } else {
-          selectedCategory = null;
-          applyHighlight();
-        }
-      };
-
-      document.getElementById("chartCanvas").addEventListener("mouseleave", () => {
-        selectedCategory = null;
-        applyHighlight();
-      });
-
-      chart.update();
-    } else {
-      document.body.innerHTML = "<p style='font-family:sans-serif;'>Invalid or missing chart data.</p>";
-    }
-  </script>
 </body>
 </html>
 
