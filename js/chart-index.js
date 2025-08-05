@@ -3,13 +3,12 @@ let parsedData = null;
 let selectedCategory = null;
 const colors = {};
 
-document.getElementById('csvInput').addEventListener('change', function (e) {
+document.getElementById('csvInput').addEventListener('change', function(e) {
 	const file = e.target.files[0];
 	if (!file) return;
 	const reader = new FileReader();
-	reader.onload = function (evt) {
+	reader.onload = function(evt) {
 		parsedData = parseCSV(evt.target.result);
-		console.log('sdfd', parsedData)
 		generateColorPickers();
 	};
 	reader.readAsText(file);
@@ -50,7 +49,7 @@ function renderChart() {
 	options.colors = colors;
 	options.onLegendHover = (category) => {
 		selectedCategory = category;
-		applyHighlight();
+		applyHighlight(chart, selectedCategory, colors);
 	};
 	options.onHover = (evt, elements) => {
 		if (elements.length) {
@@ -59,7 +58,7 @@ function renderChart() {
 		} else {
 			selectedCategory = null;
 		}
-		applyHighlight();
+		applyHighlight(chart, selectedCategory, colors);
 	};
 
 	const config = generateChartConfig(parsedData, options, selectedCategory, originalColors);
@@ -71,19 +70,10 @@ function renderChart() {
 
 	document.getElementById('chartCanvas').addEventListener('mouseleave', () => {
 		selectedCategory = null;
-		applyHighlight();
+		applyHighlight(chart, selectedCategory, colors);
 	});
 
 	window.lastConfig = { data: parsedData, options };
-}
-
-function applyHighlight() {
-	chart.data.datasets.forEach(ds => {
-		ds.backgroundColor = selectedCategory && ds.label !== selectedCategory
-			? 'rgba(200,200,200,0.3)'
-			: colors[ds.label];
-	});
-	chart.update();
 }
 
 function getUserOptions() {
