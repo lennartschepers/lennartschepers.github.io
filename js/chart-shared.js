@@ -116,8 +116,8 @@ function generateChartConfig(data, options, selectedCategory = null, originalCol
 }
 
 function applyHighlight(chart, selectedCategory, originalColorsMapOrArray) {
-	// Helper to actually update colors + datalabels
-	function updateHighlight(activeCategory) {
+	// update function — accepts `instant` to disable animation for this update
+	function updateHighlight(activeCategory, instant = false) {
 		chart.data.datasets.forEach((ds, i) => {
 			const origColor = Array.isArray(originalColorsMapOrArray)
 				? originalColorsMapOrArray[i]
@@ -125,7 +125,7 @@ function applyHighlight(chart, selectedCategory, originalColorsMapOrArray) {
 
 			ds.backgroundColor =
 				activeCategory && ds.label !== activeCategory
-					? hexToRgba(origColor)
+					? 'rgba(200,200,200,0.3)'
 					: origColor;
 		});
 
@@ -134,33 +134,61 @@ function applyHighlight(chart, selectedCategory, originalColorsMapOrArray) {
 				activeCategory !== null && ctx.dataset.label === activeCategory;
 		}
 
-		chart.update();
+		if (instant) {
+			// Temporarily turn off animation for an immediate change
+			const prevAnimation = chart.options.animation;
+			// Support both the shorthand number or object styles
+			const prevDuration = prevAnimation && prevAnimation.duration;
+			try {
+				// set duration to 0 for immediate update
+				if (!chart.options.animation || typeof chart.options.animation === 'number') {
+					chart.options.animation = { duration: 0 };
+				} else {
+					chart.options.animation = { ...chart.options.animation, duration: 0 };
+				}
+				chart.update();
+			} finally {
+				// restore previous animation config
+				if (prevAnimation === undefined) {
+					delete chart.options.animation;
+				} else if (typeof prevAnimation === 'number') {
+					chart.options.animation = prevAnimation;
+				} else {
+					chart.options.animation = { ...prevAnimation, duration: prevDuration };
+				}
+			}
+		} else {
+			chart.update();
+		}
 	}
 
-	// Cancel any running debounce
+	// clear pending debounce if any
 	if (highlightDebounceTimer) {
 		clearTimeout(highlightDebounceTimer);
 		highlightDebounceTimer = null;
 	}
 
-	// Remove highlight immediately
+	// If selection cleared -> immediate removal without debounce and without animation
 	if (selectedCategory === null) {
 		lastSelectedCategory = null;
-		updateHighlight(null);
+		updateHighlight(null, true); // instant clear
 		return;
 	}
 
-	// Switch immediately if already had a category selected
+	// If there was already a selected category, switch immediately (no debounce).
+	// Use instant=true to avoid the color-animation-lag artifact.
 	if (lastSelectedCategory !== null) {
 		lastSelectedCategory = selectedCategory;
-		updateHighlight(selectedCategory);
+		updateHighlight(selectedCategory, true); // instant switch
 		return;
 	}
 
-	// First highlight — debounce by 200ms
+	// No previous selection and a category was just hovered/selected:
+	// debounce briefly to avoid flicker on quick mouse moves. Use animated update.
 	highlightDebounceTimer = setTimeout(() => {
-		lastSelectedCategory = selectedCategory;
-		updateHighlight(selectedCategory);
 		highlightDebounceTimer = null;
+		lastSelectedCategory = selectedCategory;
+		updateHighlight(selectedCategory, false); // allow animation for debounced first highlight
 	}, 200);
 }
+

@@ -93,8 +93,8 @@ function copyEmbedCode() {
 	};
 	const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(embedData))));
 	const iframeUrl = `${window.location.origin}/embed.html?d=${encoded}`;
-	const width = document.getElementById('embedWidth').value || 400;
-	const height = document.getElementById('embedHeight').value || 400;
+	const width = document.getElementById('embedWidth').value || 500;
+	const height = document.getElementById('embedHeight').value || 500;
 	const iframeCode = `<iframe src="${iframeUrl}" width="${width}" height="${height}" frameborder="0" allowfullscreen></iframe>`;
 
 	navigator.clipboard.writeText(iframeCode).then(() => {
