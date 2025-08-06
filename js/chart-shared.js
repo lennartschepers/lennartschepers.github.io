@@ -87,12 +87,16 @@ function generateChartConfig(data, options, selectedCategory = null, originalCol
 			},
 			scales: {
 				x: {
-					ticks: { font: { size: options.axisFontSize || 12 } },
-					grid: { display: false, drawBorder: false }
+					ticks: { font: { size: options.axisFontSize || 12 }, color: '#000' },
+					grid: { display: false, drawBorder: false },
+					border: {
+						display: true,
+						color: '#000',
+					}
 				},
 				y: {
 					ticks: {
-						font: { size: options.axisFontSize || 12 },
+						font: { size: options.axisFontSize || 12 }, color: '#a2a2a2',
 						maxTicksLimit: 4,
 						precision: 0,
 						callback: function(value, index, ticks) {
