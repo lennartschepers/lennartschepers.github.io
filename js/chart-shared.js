@@ -1,7 +1,7 @@
 let lastSelectedCategory = null;
 let highlightDebounceTimer = null;
 
-function hexToRgba(hex, alpha = 0.2) {
+function hexToRgba(hex, alpha = 0.3) {
 	// Remove the # if present
 	hex = hex.replace(/^#/, '');
 
@@ -125,7 +125,7 @@ function applyHighlight(chart, selectedCategory, originalColorsMapOrArray) {
 
 			ds.backgroundColor =
 				activeCategory && ds.label !== activeCategory
-					? 'rgba(200,200,200,0.3)'
+					? hexToRgba(origColor)
 					: origColor;
 		});
 
