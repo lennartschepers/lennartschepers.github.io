@@ -68,6 +68,9 @@ function renderChart() {
 	Chart.register(ChartDataLabels);
 	chart = new Chart(ctx, config);
 
+	console.log(document.getElementById('chartFootnote').value)
+	document.getElementById('footnote').textContent = document.getElementById('chartFootnote').value || ''
+
 	document.getElementById('chartCanvas').addEventListener('mouseleave', () => {
 		selectedCategory = null;
 		applyHighlight(chart, selectedCategory, colors);
@@ -92,7 +95,8 @@ function copyEmbedCode() {
 		colors
 	};
 	const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(embedData))));
-	const iframeUrl = `${window.location.origin}/embed.html?d=${encoded}`;
+	const footnote = encodeURIComponent(document.getElementById('chartFootnote').value || '')
+	const iframeUrl = `${window.location.origin}/embed.html?d=${encoded}&footnote=${footnote}`;
 	const width = document.getElementById('embedWidth').value || 500;
 	const height = document.getElementById('embedHeight').value || 500;
 	const iframeCode = `<iframe src="${iframeUrl}" width="${width}" height="${height}" frameborder="0" allowfullscreen></iframe>`;

@@ -51,7 +51,8 @@ function generateChartConfig(data, options, selectedCategory = null, originalCol
 				title: {
 					display: !!options.title,
 					text: options.title,
-					font: { size: 18 },
+					font: { size: 20 },
+					color: '#000',
 					align: 'start'
 				},
 				subtitle: {
@@ -64,7 +65,7 @@ function generateChartConfig(data, options, selectedCategory = null, originalCol
 					display: ctx => selectedCategory !== null && ctx.dataset.label === selectedCategory,
 					anchor: 'end',
 					align: 'end',
-					offset: 10,
+					offset: 5,
 					color: '#000',
 					formatter: v => v,
 					font: { weight: 'bold' }

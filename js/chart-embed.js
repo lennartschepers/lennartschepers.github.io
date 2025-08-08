@@ -5,6 +5,7 @@
 		document.body.innerHTML = "<p style='font-family:sans-serif;'>Invalid or missing chart data.</p>";
 		return;
 	}
+	const footnoteText = params.get("footnote") || ""
 
 	try {
 		const decoded = decodeURIComponent(escape(atob(encoded)));
@@ -29,6 +30,9 @@
 		};
 
 		const config = generateChartConfig(data, options, selectedCategory, originalColors);
+		if (footnoteText) {
+			document.getElementById("footnote").textContent = footnoteText
+		}
 
 		const ctx = document.getElementById("chartCanvas").getContext("2d");
 		Chart.register(ChartDataLabels);
