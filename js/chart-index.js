@@ -68,8 +68,14 @@ function renderChart() {
 	Chart.register(ChartDataLabels);
 	chart = new Chart(ctx, config);
 
-	console.log(document.getElementById('chartFootnote').value)
 	document.getElementById('footnote').textContent = document.getElementById('chartFootnote').value || ''
+
+	sourceText = document.getElementById('chartSourceText').value
+	sourceUrl = document.getElementById('chartSourceUrl').value
+	if (sourceText && sourceUrl) {
+		renderSourceLink(sourceText, sourceUrl)
+	}
+
 
 	document.getElementById('chartCanvas').addEventListener('mouseleave', () => {
 		selectedCategory = null;
@@ -96,7 +102,10 @@ function copyEmbedCode() {
 	};
 	const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(embedData))));
 	const footnote = encodeURIComponent(document.getElementById('chartFootnote').value || '')
-	const iframeUrl = `${window.location.origin}/embed.html?d=${encoded}&footnote=${footnote}`;
+	const sourceText = encodeURIComponent(document.getElementById('chartSourceText').value || '');
+	const sourceUrl = encodeURIComponent(document.getElementById('chartSourceUrl').value || '');
+
+	const iframeUrl = `${window.location.origin}/embed.html?d=${encoded}&footnote=${footnote}&sourceText=${sourceText}&sourceUrl=${sourceUrl}`;
 	const width = document.getElementById('embedWidth').value || 500;
 	const height = document.getElementById('embedHeight').value || 500;
 	const iframeCode = `<iframe src="${iframeUrl}" width="${width}" height="${height}" frameborder="0" allowfullscreen></iframe>`;

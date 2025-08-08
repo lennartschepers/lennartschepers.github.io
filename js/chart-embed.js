@@ -5,7 +5,9 @@
 		document.body.innerHTML = "<p style='font-family:sans-serif;'>Invalid or missing chart data.</p>";
 		return;
 	}
-	const footnoteText = params.get("footnote") || ""
+	const footnoteText = params.get("footnote")
+	const sourceText = params.get("sourceText")
+	const sourceUrl = params.get("sourceUrl")
 
 	try {
 		const decoded = decodeURIComponent(escape(atob(encoded)));
@@ -33,7 +35,9 @@
 		if (footnoteText) {
 			document.getElementById("footnote").textContent = footnoteText
 		}
-
+		if (sourceText && sourceUrl) {
+			renderSourceLink(sourceText, sourceUrl)
+		}
 		const ctx = document.getElementById("chartCanvas").getContext("2d");
 		Chart.register(ChartDataLabels);
 		const chart = new Chart(ctx, config);

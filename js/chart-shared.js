@@ -197,3 +197,13 @@ function applyHighlight(chart, selectedCategory, originalColorsMapOrArray) {
 	}, 200);
 }
 
+function renderSourceLink(sourceText, sourceUrl) {
+	const sourceDiv = document.getElementById("source");
+	const link = document.createElement("a");
+	link.href = sourceUrl;
+	link.textContent = sourceText;
+	link.target = "_blank";
+	link.rel = "noopener noreferrer";
+	sourceDiv.textContent = "Source: ";
+	sourceDiv.appendChild(link);
+}
