@@ -1,38 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Embedded Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <script src="js/chart-shared.js" defer></script>
+  <script src="js/chart-embed.js" defer></script>
   <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      background: white;
-    }
-
-    #chart-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 1rem;
-    }
-
-    #chart-title {
-      font-size: 1.4rem;
-      font-weight: bold;
-      margin: 0 0 0.5rem 0;
-      text-align: center;
-    }
-
-    #chart-subtitle {
-      font-size: 1rem;
-      font-weight: normal;
-      margin: 0 0 1rem 0;
-      color: #555;
-      text-align: center;
-    }
-
-    #myChart {
-      max-width: 100%;
-    }
 	#footnote {
 		margin-top: 1rem; 
 		max-width: 100%;
@@ -55,25 +30,13 @@
 	}
   </style>
 </head>
-<body>
-  <div id="chart-container">
-    <h2 id="chart-title"></h2>
-    <h4 id="chart-subtitle"></h4>
-    <canvas id="myChart"></canvas>
-    <div id="footnote"></div>
-    <div id="source"></div>
+<body style="margin:0; padding:0; display:flex; justify-content:center; align-items:center; height:100vh;">
+  <div id="chart-container" style="display:flex; flex-direction:column; align-items:center; width:100%; max-width:100%; height:100%; box-sizing:border-box; overflow:hidden;">
+    <canvas id="myChart" style="max-width:100%; height:auto;"></canvas>
+    <i id="footnote" style="font-family: sans-serif; font-size: 0.8rem; margin-top: 0.5rem; text-align: center; color: #444; max-width:100%;"></i>
+    <div id="source" style="font-family: sans-serif; font-size: 0.8rem; margin-top: 0.3rem; text-align: center; color: #444; max-width:100%;"></div>
   </div>
-
-  <script>
-    // Chart.js rendering logic goes here...
-
-    // Send height to parent so iframe resizes
-    function sendHeight() {
-      const height = document.documentElement.scrollHeight;
-      window.parent.postMessage({ chartEmbedHeight: height }, '*');
-    }
-    window.onload = sendHeight;
-    window.onresize = sendHeight;
-  </script>
 </body>
+
+</html>
 

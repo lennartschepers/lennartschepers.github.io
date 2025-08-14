@@ -108,7 +108,7 @@ function copyEmbedCode() {
 	const iframeUrl = `${window.location.origin}/embed.html?d=${encoded}&footnote=${footnote}&sourceText=${sourceText}&sourceUrl=${sourceUrl}`;
 	const width = document.getElementById('embedWidth').value || 500;
 	const height = document.getElementById('embedHeight').value || 500;
-	const iframeCode = `<iframe src="${iframeUrl}" width="${width}" height="${height}" frameborder="0" allowfullscreen></iframe>`;
+	const iframeCode = `<iframe src="${iframeUrl}" width="${width}" height="${height}" style="border:0; overflow:hidden;" scrolling="no"></iframe>`;
 
 	navigator.clipboard.writeText(iframeCode).then(() => {
 		alert('iframe code gekopieerd naar clipboard!');
