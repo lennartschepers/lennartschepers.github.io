@@ -79,9 +79,9 @@ function generateChartConfig(data, options, selectedCategory = null, originalCol
 					},
 					align: 'start',
 					labels: {
-						boxWidth: 12,
-						padding: 5
+						boxWidth: 12
 					},
+					offsetX: -5
 				},
 				tooltip: {
 					enabled: false
