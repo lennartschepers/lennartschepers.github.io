@@ -1,27 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Embedded Chart</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-  <script src="js/chart-shared.js" defer></script>
-  <script src="js/chart-embed.js" defer></script>
   <style>
-    html, body {
+    body {
       margin: 0;
-      padding: 0;
-      height: 100%;
-      display: flex;
-	  flex-direction: column;
-      align-items: center;
-      justify-content: center;
-	  font-family: sans-serif;
+      font-family: sans-serif;
+      background: white;
     }
-    canvas {
+
+    #chart-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    #chart-title {
+      font-size: 1.4rem;
+      font-weight: bold;
+      margin: 0 0 0.5rem 0;
+      text-align: center;
+    }
+
+    #chart-subtitle {
+      font-size: 1rem;
+      font-weight: normal;
+      margin: 0 0 1rem 0;
+      color: #555;
+      text-align: center;
+    }
+
+    #myChart {
       max-width: 100%;
-      max-height: 100%;
-	  width: 500px;
     }
 	#footnote {
 		margin-top: 1rem; 
@@ -46,9 +56,24 @@
   </style>
 </head>
 <body>
-  <canvas id="chartCanvas"></canvas>
-  <i id="footnote"></i>
-  <div id="source"></div>
+  <div id="chart-container">
+    <h2 id="chart-title"></h2>
+    <h4 id="chart-subtitle"></h4>
+    <canvas id="myChart"></canvas>
+    <div id="footnote"></div>
+    <div id="source"></div>
+  </div>
+
+  <script>
+    // Chart.js rendering logic goes here...
+
+    // Send height to parent so iframe resizes
+    function sendHeight() {
+      const height = document.documentElement.scrollHeight;
+      window.parent.postMessage({ chartEmbedHeight: height }, '*');
+    }
+    window.onload = sendHeight;
+    window.onresize = sendHeight;
+  </script>
 </body>
-</html>
 
