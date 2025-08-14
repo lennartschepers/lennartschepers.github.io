@@ -80,7 +80,7 @@ function generateChartConfig(data, options, selectedCategory = null, originalCol
 					align: 'start',
 					labels: {
 						boxWidth: 12,
-						padding: 0
+						padding: 5
 					},
 				},
 				tooltip: {
