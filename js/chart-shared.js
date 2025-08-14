@@ -45,6 +45,11 @@ function generateChartConfig(data, options, selectedCategory = null, originalCol
 		type: 'bar',
 		data: { labels, datasets },
 		options: {
+			layout: {
+				padding: {
+					left: 5,
+				}
+			},
 			responsive: true,
 			maintainAspectRatio: false,
 			plugins: {
@@ -81,7 +86,6 @@ function generateChartConfig(data, options, selectedCategory = null, originalCol
 					labels: {
 						boxWidth: 12
 					},
-					offsetX: -5
 				},
 				tooltip: {
 					enabled: false
