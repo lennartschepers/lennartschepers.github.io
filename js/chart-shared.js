@@ -79,7 +79,8 @@ function generateChartConfig(data, options, selectedCategory = null, originalCol
 					},
 					align: 'start',
 					labels: {
-						boxWidth: 12
+						boxWidth: 12,
+						padding: 0
 					},
 				},
 				tooltip: {
